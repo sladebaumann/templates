@@ -1,0 +1,130 @@
+kind: Template
+apiVersion: v1
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: python-sample-app
+    name: python-sample-app
+  spec: {}
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: python-sample-app
+    name: python-sample-app
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: python-sample-app:latest
+    postCommit: {}
+    resources: {}
+    source:
+      git:
+        ref: master
+        uri: https://github.com/brantlk/python-sample-app.git
+      secrets: []
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: python:3.5
+          namespace: openshift
+      type: Source
+    triggers:
+    - github:
+        secret: RoP3MArqCvJhPh0yfoFu
+      type: GitHub
+    - generic:
+        secret: XCpoFCBwbyrEG5bygZqY
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: python-sample-app
+    name: python-sample-app
+  spec:
+    replicas: 1
+    selector:
+      app: python-sample-app
+      deploymentconfig: python-sample-app
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/container.python-sample-app.image.entrypoint: '["container-entrypoint","/bin/sh","-c","$STI_SCRIPTS_PATH/usage"]'
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: python-sample-app
+          deploymentconfig: python-sample-app
+      spec:
+        containers:
+        - image: python-sample-app:latest
+          name: python-sample-app
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - python-sample-app
+        from:
+          kind: ImageStreamTag
+          name: python-sample-app:latest
+      type: ImageChange
+  status: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: python-sample-app
+    name: python-sample-app
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: python-sample-app
+      deploymentconfig: python-sample-app
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: python-sample-app
+  spec:
+    to:
+      kind: Service
+      name: python-sample-app
+metadata: {}
