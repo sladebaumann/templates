@@ -39,7 +39,7 @@ objects:
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: python:3.5
+          name: python:2.7
           namespace: openshift
       type: Source
     triggers:
@@ -127,4 +127,10 @@ objects:
     to:
       kind: Service
       name: python-sample-app
-metadata: {}
+metadata:
+  name: python-sample-app
+  annotations:
+    openshift.io/display-name: "python-sample-app"
+    description: "jumpgate"
+    tags: python
+    iconClass: icon-python
